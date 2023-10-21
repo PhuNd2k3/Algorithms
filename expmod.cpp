@@ -1,20 +1,23 @@
 // CPP
 #include <bits/stdc++.h>
 using namespace std;
+unsigned long long a, b;
 
 const unsigned long long MOD = 1000000007;
-
-unsigned long long mod_pow(unsigned long long a, unsigned long long b, unsigned long long mod)
+unsigned long long mod = MOD;
+unsigned long long power()
 {
+
     unsigned long long result = 1;
+    // a^b mod q = (a mod q)^b mod q
     a = a % mod;
     while (b > 0)
     {
         if (b % 2 == 1)
         {
-            result = (result * a) % mod;
+            result = (result * (a % mod)) % mod;
         }
-        b = b / 2;
+        b = b >> 1; // dich phai 1 bit
         a = (a * a) % mod;
     }
     return result;
@@ -22,11 +25,10 @@ unsigned long long mod_pow(unsigned long long a, unsigned long long b, unsigned 
 
 int main()
 {
-    unsigned long long a, b;
     cin >> a >> b;
 
-    unsigned long long result = mod_pow(a, b, MOD);
-    cout << result << endl;
+    unsigned long long result = power();
+    cout << result;
 
     return 0;
 }
