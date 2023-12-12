@@ -26,6 +26,7 @@ void input()
     for (vector<int> e : a)
     {
         sort(e.begin(), e.end());
+        // neu can giam dan sort(data.begin(), data.end(), greater<int>() );
     }
 }
 
