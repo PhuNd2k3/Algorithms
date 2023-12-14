@@ -165,8 +165,8 @@ int main()
     cin.tie(NULL);
     cout.tie(NULL);
     // freopen("input.txt", "r", stdin);
-    input();
 
+    input();
     y[0] = 0;
     TryY(1);
     cout << Fmin << endl;

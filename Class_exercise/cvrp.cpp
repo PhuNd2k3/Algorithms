@@ -141,6 +141,7 @@ int main()
 	// 	visited[v] = false;
 	// for (int k = 1; k <= K; k++)
 	// 	load[k] = 0;
+
 	f = 0;
 	Fmin = 1e9;
 	nbSegments = 0;
