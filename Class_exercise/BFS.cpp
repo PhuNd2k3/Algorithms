@@ -53,6 +53,12 @@ void bfs(int u)
 
 int main()
 {
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    // freopen("input.txt", "r", stdin);
+    n = min(n, 100000);
+    m = min(m, 100000);
     int count = 0;
     input();
     for (int i = 1; i <= n; i++)
