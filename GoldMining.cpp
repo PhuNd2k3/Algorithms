@@ -7,7 +7,7 @@ int n;
 int l1;
 int l2;
 int a[N];
-int c[N];
+long long int c[N];
 int amax = 0;
 void input()
 {
@@ -32,7 +32,78 @@ void DP()
     loop(i, l2 + 2, n)
     {
         int v2 = a[i] + *max_element(c + i - l2 + 1, c + i - l1 + 1);
-        c[i] = max(v2, c[i - 1]);
+        c[i] = max((long long int)v2, c[i - 1]);
+    }
+}
+
+void input1()
+{
+    // cout << "Input" << endl;
+    cin >> n >> l1 >> l2;
+    loop(i, 0, n - 1)
+    {
+        cin >> a[i];
+        amax = max(amax, a[i]);
+    }
+}
+void DP1()
+{
+    loop(i, 0, l1 - 1) c[i] = a[i];
+    loop(i, l1, n - 1)
+    {
+        int v2 = a[i] + *max_element(i - l2 >= 0 ? c + i - l2 : c, c + i - l1 + 1);
+        c[i] = v2;
+    }
+}
+
+void printDeque(const deque<pair<long long int, int>> &dq)
+{
+    for (const auto &element : dq)
+    {
+        cout << "(" << element.first << ", " << element.second << ") ";
+    }
+    cout << endl;
+}
+deque<pair<long long int, int>> dq;
+deque<pair<long long int, int>> dq_copy;
+
+void pushPop(int i)
+{
+    // duyet qua a[y]-> a[x]
+    int x = i - l1;
+    int y = i - l2;
+    if (x >= 0 && x < n)
+    {
+        // loai bo cac phan tu o cuoi hang doi ma co gia tri <= c[x]
+        while (!dq.empty() && c[x] >= dq.back().first)
+        {
+            dq.pop_back();
+        }
+        dq.push_back(make_pair(c[x], x));
+    }
+    if (y >= 0 && y < n)
+    {
+        // loai bo cac phan tu o dau hang doi ma co chi so < y
+        if (!dq.empty() && y > dq.front().second)
+        {
+            dq.pop_front();
+        }
+    }
+    // dq_copy = dq;
+    // printDeque(dq_copy);
+}
+
+void DP1_improve()
+{
+    c[0] = a[0];
+    loop(i, 1, n - 1)
+    {
+        pushPop(i);
+        c[i] = (long long int)a[i];
+        if (!dq.empty())
+        {
+            c[i] += dq.front().first;
+        }
     }
 }
 
@@ -42,9 +113,14 @@ int main()
     cin.tie(NULL);
     cout.tie(NULL);
     freopen("input.txt", "r", stdin);
-    input();
-    DP();
-    cout << c[n];
+    // freopen("output3.txt", "w", stdout);
+    input1();
+    // DP1();
+    DP1_improve();
+    cout << *max_element(c + 1, c + n + 1);
+    // input();
+    // DP();
+    // cout << c[n];
     return 0;
 }
 // cout << "Solving" << endl;
