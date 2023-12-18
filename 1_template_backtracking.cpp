@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #define N 1000001
+// #define loop(i, a, b) for (int i = a; i <= b; i++)
 
 using namespace std;
 int f = 0;
