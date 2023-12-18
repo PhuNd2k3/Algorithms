@@ -100,3 +100,26 @@ int main()
     cout << f;
     return 0;
 }
+
+// int k = 0;
+// int check = 0;
+// loop(i, 0, m - 1)
+// {
+//     k = i;
+//     check = 0;
+//     loop(j, 0, n - 1)
+//     {
+//         if (str2[k] == str1[j])
+//         {
+//             // cout << k << " : " << str2[k] << endl;
+//             k++;
+//             check++;
+//         }
+//         else
+//         {
+//             break;
+//         }
+//     }
+//     if (check == n)
+//         f++;
+// }
