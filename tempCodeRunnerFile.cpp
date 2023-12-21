@@ -1,102 +1,143 @@
-// C++ program for implementation of KMP pattern searching
-// algorithm
-
 #include <bits/stdc++.h>
+#define N 50
+#define loop(i, a, b) for (int i = a; i <= b; i++)
+
 using namespace std;
-void computeLPSArray(string pat, int M, int *lps);
-int f = 0;
-// Prints occurrences of pat[] in txt[]
-void KMPSearch(string pat, string txt)
+int n; // paper
+int m; // reviewer
+int b;
+int d[N];                // count number reviewer of each paper
+vector<int> l[N];        // vector of reviewer for each paper
+vector<int> reviewer[N]; // vector of paper for each reviewer
+int c[N][N];
+int f[N];
+int Fmin = INT_MAX;
+bool visited[N][N];
+int K[N];
+vector<pair<int, int>> pii[N];
+pair<int, int> pc[N][N];
+void input()
 {
-    int M = pat.size();
-    int N = txt.size();
-
-    // create lps[] that will hold the longest prefix suffix
-    // values for pattern
-    int lps[M];
-
-    // Preprocess the pattern (calculate lps[] array)
-    computeLPSArray(pat, M, lps);
-
-    int i = 0; // index for txt[]
-    int j = 0; // index for pat[]
-    while ((N - i) >= (M - j))
+    int k;
+    int L;
+    cin >> n >> m >> b;
+    loop(i, 1, n)
     {
-        if (pat[j] == txt[i])
+        cin >> k;
+        K[i] = k;
+        loop(j, 1, k)
         {
-            j++;
-            i++;
+            cin >> L;
+            l[i].push_back(L);
+            // reviewer[L].push_back(i);
+            pii[i].push_back(make_pair(j - 1, L));
         }
+    }
+}
 
-        if (j == M)
+void printVector()
+{
+    loop(i, 1, m)
+    {
+        cout << f[i] << " ";
+    }
+    cout << endl;
+}
+int sumArray()
+{
+    int sum = 0;
+    loop(i, 1, m)
+    {
+        sum += f[i];
+    }
+    return sum;
+}
+// int count_solution = 0;
+void solution()
+{
+    // count_solution++;
+    int maxThisSolution = *max_element(f + 1, f + m + 1);
+    Fmin = min(Fmin, maxThisSolution);
+    if (maxThisSolution == 3)
+    {
+        printVector();
+        loop(i, 1, n)
         {
-            f++;
-            j = lps[j - 1];
+            loop(j, 1, b)
+            {
+                cout << pc[i][j].second << " ";
+            }
+            cout << endl;
         }
+    }
+}
 
-        // mismatch after j matches
-        else if (i < N && pat[j] != txt[i])
+void TryX(int i, int k) // reviewer number i for paper k
+{
+    for (int v = pc[k][i - 1].first + 1; v < K[k]; v++)
+    {
+        pc[k][i] = pii[k][v];
+        d[k]++;                // so luong nguoi review paper k
+        f[pii[k][v].second]++; // so paper nguoi v review
+        if (i == b)
         {
-            // Do not match lps[0..lps[j-1]] characters,
-            // they will match anyway
-            if (j != 0)
-                j = lps[j - 1];
+            if (k == n)
+            {
+                solution();
+            }
             else
-                i = i + 1;
+            {
+                if (f[pii[k][v].second] < Fmin)
+                    TryX(2, k + 1);
+            }
         }
+        else
+        {
+            if (f[pii[k][v].second] < Fmin)
+                TryX(i + 1, k);
+        }
+        d[k]--;
+        f[pii[k][v].second]--;
     }
 }
 
-// Fills lps[] for given pattern pat[0..M-1]
-void computeLPSArray(string pat, int M, int *lps)
+void TryY(int k)
 {
-    // length of the previous longest prefix suffix
-    int len = 0;
-
-    lps[0] = 0; // lps[0] is always 0
-
-    // the loop calculates lps[i] for i = 1 to M-1
-    int i = 1;
-    while (i < M)
+    for (int i = 0; i < K[k] - b + 1; i++)
     {
-        if (pat[i] == pat[len])
-        {
-            len++;
-            lps[i] = len;
-            i++;
-        }
-        else // (pat[i] != pat[len])
-        {
-            // This is tricky. Consider the example.
-            // AAACAAAA and i = 7. The idea is similar
-            // to search step.
-            if (len != 0)
-            {
-                len = lps[len - 1];
 
-                // Also, note that we do not increment
-                // i here
-            }
-            else // if (len == 0)
+        pc[k][1] = pii[k][i];
+        d[k]++;                // so luong nguoi review paper k
+        f[pii[k][i].second]++; // so paper nguoi v review
+        if (k == n)
+        {
+            if (f[pii[k][i].second] < Fmin)
+                TryX(2, 1);
+        }
+        else
+        {
+            if (f[pii[k][i].second] < Fmin)
             {
-                lps[i] = 0;
-                i++;
+                TryY(k + 1);
             }
         }
+        d[k]--;
+        f[pii[k][i].second]--;
     }
 }
-
-// Driver code
 int main()
 {
     ios_base::sync_with_stdio(0);
     cin.tie(NULL);
     cout.tie(NULL);
     freopen("input.txt", "r", stdin);
-    string str1, str2;
-    getline(cin, str1);
-    getline(cin, str2);
-    KMPSearch(str1, str2);
-    cout << f;
+    input();
+    TryY(1);
+    if (Fmin == INT_MAX)
+    {
+        cout << -1;
+    }
+    else
+        cout << Fmin;
     return 0;
 }
