@@ -58,18 +58,18 @@ void solution()
     // count_solution++;
     int maxThisSolution = *max_element(f + 1, f + m + 1);
     Fmin = min(Fmin, maxThisSolution);
-    if (maxThisSolution == 3)
-    {
-        printVector();
-        loop(i, 1, n)
-        {
-            loop(j, 1, b)
-            {
-                cout << pc[i][j].second << " ";
-            }
-            cout << endl;
-        }
-    }
+    // if (maxThisSolution == 3)
+    // {
+    //     printVector();
+    //     loop(i, 1, n)
+    //     {
+    //         loop(j, 1, b)
+    //         {
+    //             cout << pc[i][j].second << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    // }
 }
 
 void TryX(int i, int k) // reviewer number i for paper k
@@ -130,7 +130,7 @@ int main()
     ios_base::sync_with_stdio(0);
     cin.tie(NULL);
     cout.tie(NULL);
-    freopen("input.txt", "r", stdin);
+    freopen("../input.txt", "r", stdin);
     input();
     TryY(1);
     if (Fmin == INT_MAX)
