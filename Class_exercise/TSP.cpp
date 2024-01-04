@@ -4,7 +4,7 @@ using namespace std;
 
 #define N 100;
 int matrix[20][20];
-bool visited[20] = {false};
+bool visited[20];
 int f_min = std::numeric_limits<int>::max();
 int c_min = std::numeric_limits<int>::max();
 int f = 0;

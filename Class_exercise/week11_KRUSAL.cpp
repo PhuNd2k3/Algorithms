@@ -86,9 +86,9 @@ int main()
     input();
     cout << Krusal();
     cout << endl;
-    loop(i, 1, n)
-    {
-        cout << r[i] << " ";
-    }
+    // loop(i, 1, n)
+    // {
+    //     cout << r[i] << " ";
+    // }
     return 0;
 }
