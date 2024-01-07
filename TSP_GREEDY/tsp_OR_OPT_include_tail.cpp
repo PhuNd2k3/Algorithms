@@ -83,7 +83,7 @@ void findMinRoute()
         }
     }
 
-    loop(i, 2, n / 2)
+    loop(i, 1, n / 2)
     {
         int search = 1;
         while (search)
@@ -96,7 +96,7 @@ void findMinRoute()
 
     // cout << "end search" << endl;
     cityList.printList();
-    printSum(cityList);
+    // printSum(cityList);
 }
 
 int main()
@@ -195,13 +195,26 @@ int Linkedlist::localSearch(int u)
     }
     Node *prevNode = head;
 
-    while (s->next != tail)
+    while (s != tail)
     {
 
-        for (Node *pNode = head; pNode != tail; pNode = pNode->next)
+        for (Node *pNode = head; pNode != NULL; pNode = pNode->next)
         {
             if (pNode == prevNode)
                 pNode = s->next;
+            if (pNode == tail)
+            {
+                int v = tsp[tail->data][f->data] + tsp[s->data][head->data] - tsp[tail->data][head->data] - tsp[prevNode->data][f->data] - tsp[s->data][s->next->data] + tsp[prevNode->data][s->next->data];
+                if (v < 0)
+                {
+                    prevNode->next = s->next;
+                    tail->next = f;
+                    tail = s;
+                    s->next = NULL;
+                    return 1;
+                }
+                break;
+            }
             int v = tsp[pNode->data][f->data] + tsp[s->data][pNode->next->data] - tsp[pNode->data][pNode->next->data] - tsp[prevNode->data][f->data] - tsp[s->data][s->next->data] + tsp[prevNode->data][s->next->data];
             if (v < 0)
             {
