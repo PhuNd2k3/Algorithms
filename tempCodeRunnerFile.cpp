@@ -45,6 +45,16 @@ public:
 };
 
 void printSum(Linkedlist);
+int countSum(int res[])
+{
+    int sum = 0;
+    loop(i, 1, n - 1)
+    {
+        sum += tsp[res[i]][res[i + 1]];
+    }
+    sum += tsp[res[n]][res[1]];
+    return sum;
+}
 void findMinRoute()
 {
     Linkedlist cityList;
@@ -80,21 +90,13 @@ void findMinRoute()
         {
             search = cityList.localSearch(i);
             // cityList.printList();
-            printSum(cityList);
-        }
-    }
-    for (int i = n / 2; i >= 1; i--)
-    {
-        int search = 1;
-        while (search)
-        {
-            search = cityList.localSearch(i);
-            // cityList.printList();
-            printSum(cityList);
+            // printSum(cityList);
         }
     }
 
+    // cout << "end search" << endl;
     cityList.printList();
+    // printSum(cityList);
 }
 
 int main()
@@ -170,7 +172,7 @@ Node *Linkedlist::getHead()
 Node *Linkedlist::findNodeToInsert(int data)
 {
     Node *minNode = NULL;
-    // int Fmin = tsp[data][head->data] + tsp[tail->data][data] - tsp[tail->data][head->data];
+    // int Fmin = tsp[data][head->data];
     int Fmin = INT_MAX;
     for (Node *pNode = head; pNode->next != NULL; pNode = pNode->next)
     {
@@ -185,7 +187,6 @@ Node *Linkedlist::findNodeToInsert(int data)
 }
 int Linkedlist::localSearch(int u)
 {
-
     Node *f = head->next;
     Node *s = f;
     loop(i, 1, u)
@@ -229,25 +230,6 @@ int Linkedlist::localSearch(int u)
         s = s->next;
         prevNode = prevNode->next;
     }
-
-    f = head;
-    s = f;
-    loop(i, 1, u)
-    {
-        s = s->next;
-    }
-    for (Node *pNode = s->next; pNode != tail; pNode = pNode->next)
-    {
-        int v = tsp[tail->data][s->next->data] + tsp[pNode->data][f->data] + tsp[s->data][pNode->next->data] - tsp[tail->data][head->data] - tsp[s->data][s->next->data] - tsp[pNode->data][pNode->next->data];
-        if (v < 0)
-        {
-            head = s->next;
-            s->next = pNode->next;
-            pNode->next = f;
-            return 1;
-        }
-    }
-
     return 0;
 }
 void printSum(Linkedlist cityList)
