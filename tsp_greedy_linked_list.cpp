@@ -41,9 +41,8 @@ public:
     Node *getHead();
     Node *findNodeToInsert(int);
     void insertHead(int);
-    int localSearch(int);
+    Node *lastCheck();
 };
-
 void printSum(Linkedlist);
 int countSum(int res[])
 {
@@ -82,27 +81,79 @@ void findMinRoute()
             }
         }
     }
-
-    loop(i, 2, n / 2)
+    // cityList.printList();
+    // printSum(cityList);
+    // cout << endl;
+    int res[N];
+    int newRes[N];
+    Node *temp = cityList.getHead();
+    for (int i = 1; i <= n; i++)
     {
-        int search = 1;
-        while (search)
-        {
-            search = cityList.localSearch(i);
-            // cityList.printList();
-            // printSum(cityList);
-        }
+        res[i] = temp->data;
+        temp = temp->next;
     }
+    int change = 0;
+    do
+    {
+        change = 0;
+        int ia;
+        int ic;
+        int a;
+        int b;
+        int c, d;
+        loop(j, 1, n - 4)
+        {
+            ia = j;
+            a = res[j];
+            b = res[j + 1];
+            loop(i, ia + 2, n - 1)
+            {
+                ic = i;
+                c = res[i];
+                d = res[i + 1];
+                if ((tsp[a][b] + tsp[c][d]) > (tsp[a][c] + tsp[b][d]))
+                {
+                    loop(k, 1, ia)
+                    {
+                        newRes[k] = res[k];
+                    }
+                    loop(k, ic + 1, n)
+                    {
+                        newRes[k] = res[k];
+                    }
+                    newRes[ia + 1] = c;
+                    newRes[ic] = b;
+                    int k = ia + 1 + 1;
+                    int j = ic - 1;
+                    int size = j - k + 1;
+                    loop(q, 1, size)
+                    {
+                        newRes[k++] = res[j--];
+                    }
+                    cout << countSum(newRes) << endl;
+                    change = 1;
+                    loop(i, 1, n)
+                    {
+                        res[i] = newRes[i];
+                    }
+                    break;
+                }
+            }
+        }
+    } while (change == 1);
 
-    // cout << "end search" << endl;
-    cityList.printList();
-    printSum(cityList);
+    loop(i, 1, n)
+    {
+        cout << res[i] << " ";
+    }
+    cout << "\n"
+         << countSum(res) << endl;
 }
 
 int main()
 {
     freopen("input.txt", "r", stdin);
-    // freopen("output.txt", "w", stdout);
+
     cin >> n;
     cout << n << "\n";
     loop(i, 1, n)
@@ -110,7 +161,7 @@ int main()
         loop(j, 1, n)
         {
             cin >> tsp[i][j];
-            if (i == j)
+            if (tsp[i][j] == 0)
                 tsp[i][j] = INT_MAX;
             if (dmin > tsp[i][j])
             {
@@ -148,22 +199,14 @@ void Linkedlist::insertNode(Node *curNode, int data)
 }
 void Linkedlist::printList()
 {
-    int mark[N];
     Node *temp = head;
-    memset(mark, 0, sizeof(mark));
+
     // Traverse the list.
     while (temp != NULL)
     {
-        if (mark[temp->data])
-        {
-            cout << temp->data << " BOOOOOOO!" << endl;
-            exit(0);
-        }
-        visited[temp->data] = 1;
         cout << temp->data << " ";
         temp = temp->next;
     }
-    cout << endl;
 }
 Node *Linkedlist::getHead()
 {
@@ -185,58 +228,50 @@ Node *Linkedlist::findNodeToInsert(int data)
     }
     return minNode;
 }
-int Linkedlist::localSearch(int u)
+Node *Linkedlist::lastCheck()
 {
-    Node *f = head->next;
-    Node *s = f;
-    loop(i, 1, u)
-    {
-        s = s->next;
-    }
+    int Fmin = tsp[tail->data][head->data];
+    Node *minNode = NULL;
     Node *prevNode = head;
+    Node *tailNode = tail;
+    Node *headNode = head;
 
-    while (s->next != tail)
+    for (Node *pNode = head->next; pNode->next != NULL; pNode = pNode->next)
     {
 
-        for (Node *pNode = head; pNode != tail; pNode = pNode->next)
+        int f = tsp[prevNode->data][pNode->next->data] + tsp[prevNode->data][pNode->next->data] + tsp[tail->data][pNode->data] + tsp[pNode->data][head->data] - tsp[prevNode->data][pNode->data] - tsp[pNode->data][pNode->next->data];
+        prevNode = pNode;
+        if (f < Fmin)
         {
-            if (pNode == prevNode)
-                pNode = s->next;
-            int v = tsp[pNode->data][f->data] + tsp[s->data][pNode->next->data] - tsp[pNode->data][pNode->next->data] - tsp[prevNode->data][f->data] - tsp[s->data][s->next->data] + tsp[prevNode->data][s->next->data];
-            if (v < 0)
-            {
-                // cout << f->data << " " << s->data << " " << pNode->data << endl;
-                prevNode->next = s->next;
-                s->next = pNode->next;
-                pNode->next = f;
-                // cout << "change: " << v << endl;
-                return 1;
-            }
+            Fmin = f;
+            minNode = pNode;
         }
-        f = f->next;
-        s = s->next;
-        prevNode = prevNode->next;
     }
-    return 0;
+    if (minNode != NULL)
+    {
+        prevNode = head;
+        while (prevNode->next != minNode)
+        {
+            prevNode = prevNode->next;
+        }
+
+        prevNode->next = minNode->next;
+        tailNode->next = minNode;
+        minNode->next = NULL;
+        tail = minNode;
+    }
+    return minNode;
 }
 void printSum(Linkedlist cityList)
 {
-    cout << "Sum: ";
     Node *pList = cityList.getHead();
     int sum = 0;
     while (pList->next != NULL)
     {
         sum += tsp[pList->data][pList->next->data];
-        if (sum < 0)
-        {
-            cout << "\n"
-                 << pList->data << " " << pList->next->data << " " << tsp[pList->data][pList->next->data] << endl;
-            cout << sum << endl;
-            // cityList.printList();
-            exit(1);
-        }
         pList = pList->next;
     }
     sum += tsp[pList->data][cityList.getHead()->data];
+    cout << endl;
     cout << sum << endl;
 }

@@ -189,12 +189,6 @@ void BipGraph::addEdge(int u, int v)
 int main()
 {
     BipGraph g(N, N);
-    // g.addEdge(1, 1);
-    // g.addEdge(1, 4);
-    // g.addEdge(2, 1);
-    // g.addEdge(2, 3);
-    // g.addEdge(3, 2);
-    // g.addEdge(4, 4);
     freopen("input.txt", "r", stdin);
     int n, m;
     cin >> n >> m;

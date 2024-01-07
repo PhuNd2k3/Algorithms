@@ -22,8 +22,9 @@ void findMinRoute()
         q.pop();
         if (!go[v.first] && !come[v.second])
         {
-            // if (nextCity[v.second] == v.first)
+            // if (come[v.first] && go[v.second])
             //     continue;
+            // ?? khong biet dung hay khong dung thi diem cao hon
             nextCity[v.first] = v.second;
             go[v.first] = 1;
             come[v.second] = 1;
@@ -41,10 +42,11 @@ void findMinRoute()
         y++;
         mark[y] = x;
         cout << x << " ";
+
         visited[x] = 1;
         if (y == n)
             break;
-        if (nextCity[x] == start || nextCity[x] == 0)
+        if (visited[nextCity[x]] || nextCity[x] == 0)
         {
             loop(i, 1, n)
             {
@@ -72,7 +74,7 @@ void findMinRoute()
     //     sum += tsp[mark[i]][mark[i + 1]];
     // }
     // sum += tsp[mark[n]][mark[1]];
-    // cout << "Sum: " << sum << endl;
+    // cout << "\nSum: " << sum << endl;
 }
 bool compare(pair<int, int> a, pair<int, int> b)
 {
@@ -80,7 +82,7 @@ bool compare(pair<int, int> a, pair<int, int> b)
 }
 int main()
 {
-    freopen("input.txt", "r", stdin);
+    // freopen("input.txt", "r", stdin);
     cin >> n;
     cout << n << "\n";
     loop(i, 1, n)
@@ -95,7 +97,6 @@ int main()
         }
     }
     sort(city.begin(), city.end(), compare);
-    // cout << city.size() << "\n";
     loop(i, 0, n * (n - 1) - 1)
     {
         q.push(city[i]);
