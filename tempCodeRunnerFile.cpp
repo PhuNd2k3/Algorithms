@@ -1,276 +1,133 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <tuple>
+
 using namespace std;
-#define N 1001
-#define loop(i, a, b) for (int i = a; i <= b; i++)
-int n;
-int tsp[N][N];
-int s, t;
-int dmin = INT_MAX;
-int visited[N];
-class Node
+
+struct Item
 {
-public:
-    int data;
-    Node *next;
-
-    // Default constructor
-    Node()
-    {
-        data = 0;
-        next = NULL;
-    }
-
-    // Parameterised Constructor
-    Node(int data)
-    {
-        this->data = data;
-        this->next = NULL;
-    }
-};
-class Linkedlist
-{
-
-public:
-    Node *head;
-    Node *tail;
-    // Default constructor
-    Linkedlist() { head = NULL; }
-    void firstNode(int);
-    void insertNode(Node *, int);
-    void printList();
-    Node *getHead();
-    Node *findNodeToInsert(int);
-    void insertHead(int);
-    int localSearch(int);
+    int index, width, length;
 };
 
-void printSum(Linkedlist);
-void findMinRoute()
+struct Truck
 {
-    Linkedlist cityList;
-    cityList.firstNode(s);
-    cityList.insertNode(cityList.getHead(), t);
-    int count = 2;
-    visited[s] = 1;
-    visited[t] = 1;
-    int Fmin = INT_MAX;
-    int f;
-    int indexMin;
-    while (count != n)
+    int index, width, length, cost;
+};
+
+bool compareItems(const Item &a, const Item &b)
+{
+    return a.width * a.length > b.width * b.length;
+}
+
+bool compareTrucks(const Truck &a, const Truck &b)
+{
+    return a.cost < b.cost;
+}
+
+void loadItemsIntoTrucks(int N, int K, vector<Item> &items, vector<Truck> &trucks)
+{
+    sort(items.begin(), items.end(), compareItems);
+    sort(trucks.begin(), trucks.end(), compareTrucks);
+
+    vector<tuple<int, int, int, int>> placements;
+    vector<pair<int, int>> remainingSpace(K, {0, 0});
+
+    for (int itemIndex = 0; itemIndex < N; ++itemIndex)
     {
-        loop(i, 1, n)
+        int itemW = items[itemIndex].width;
+        int itemL = items[itemIndex].length;
+
+        if (itemL > itemW)
         {
-            if (!visited[i])
+            swap(itemW, itemL);
+        }
+
+        int bestTruck = -1;
+        tuple<int, int, int> bestPosition;
+
+        for (int truckIndex = 0; truckIndex < K; ++truckIndex)
+        {
+            int truckW = trucks[truckIndex].width;
+            int truckL = trucks[truckIndex].length;
+
+            for (int rotation = 0; rotation < 2; ++rotation)
             {
-                if (tsp[cityList.tail->data][i] < Fmin)
+                if (rotation == 1)
                 {
-                    Fmin = tsp[cityList.tail->data][i];
-                    // cout << Fmin << endl;
-                    indexMin = i;
+                    swap(itemW, itemL);
+                }
+
+                if (itemW <= truckW && itemL <= truckL)
+                {
+                    bool overlap = false;
+                    for (const auto &placedItem : placements)
+                    {
+                        int placedT, placedX, placedY, placedO;
+                        tie(placedT, placedX, placedY, placedO) = placedItem;
+
+                        if (placedT == truckIndex && placedO == 0)
+                        {
+                            int placedW = items[placedT].width;
+                            int placedL = items[placedT].length;
+
+                            if (placedX <= itemW + placedX && itemW + placedX <= placedX + placedW &&
+                                placedY <= itemL + placedY && itemL + placedY <= placedY + placedL)
+                            {
+                                overlap = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!overlap)
+                    {
+                        bestTruck = truckIndex;
+                        bestPosition = make_tuple(remainingSpace[truckIndex].first, remainingSpace[truckIndex].second, rotation);
+                        break;
+                    }
                 }
             }
-        }
-        count++;
-        visited[indexMin] = 1;
-        cityList.insertNode(cityList.tail, indexMin);
-        Fmin = INT_MAX;
-    }
 
-    loop(i, 1, n / 2)
-    {
-        int search = 1;
-        while (search)
-        {
-            search = cityList.localSearch(i);
-            // cityList.printList();
-            printSum(cityList);
-        }
-    }
-    for (int i = n / 2; i >= 1; i--)
-    {
-        int search = 1;
-        while (search)
-        {
-            search = cityList.localSearch(i);
-            // cityList.printList();
-            printSum(cityList);
+            if (bestTruck != -1)
+            {
+                remainingSpace[bestTruck].first -= get<0>(bestPosition);
+                remainingSpace[bestTruck].second -= get<1>(bestPosition);
+                placements.emplace_back(bestTruck, get<0>(bestPosition), get<1>(bestPosition), get<2>(bestPosition));
+                break;
+            }
         }
     }
 
-    cityList.printList();
+    for (int i = 0; i < N; ++i)
+    {
+        int t, x, y, o;
+        tie(t, x, y, o) = placements[i];
+        cout << items[t].index << " " << t + 1 << " " << x << " " << y << " " << o << "\n";
+    }
 }
 
 int main()
 {
     freopen("input.txt", "r", stdin);
-    // freopen("output.txt", "w", stdout);
-    cin >> n;
-    cout << n << "\n";
-    loop(i, 1, n)
-    {
-        loop(j, 1, n)
-        {
-            cin >> tsp[i][j];
-            if (i == j)
-                tsp[i][j] = INT_MAX;
-            if (dmin > tsp[i][j])
-            {
-                dmin = tsp[i][j];
-                s = i;
-                t = j;
-            }
-        }
-    }
-    findMinRoute();
-}
-void Linkedlist::insertHead(int data)
-{
-    Node *newNode = new Node(data);
-    newNode->next = head;
-    head = newNode;
-}
+    int N, K;
+    cin >> N >> K;
 
-void Linkedlist::firstNode(int data)
-{
-    // Create the new Node.
-    Node *newNode = new Node(data);
-
-    head = newNode;
-    tail = newNode;
-}
-void Linkedlist::insertNode(Node *curNode, int data)
-{
-    // Create the new Node.
-    Node *newNode = new Node(data);
-    if (curNode == tail)
-        tail = newNode;
-    newNode->next = curNode->next;
-    curNode->next = newNode;
-}
-void Linkedlist::printList()
-{
-    int mark[N];
-    Node *temp = head;
-    memset(mark, 0, sizeof(mark));
-    // Traverse the list.
-    while (temp != NULL)
+    vector<Item> items(N);
+    for (int i = 0; i < N; ++i)
     {
-        if (mark[temp->data])
-        {
-            cout << temp->data << " BOOOOOOO!" << endl;
-            exit(0);
-        }
-        visited[temp->data] = 1;
-        cout << temp->data << " ";
-        temp = temp->next;
-    }
-    cout << endl;
-}
-Node *Linkedlist::getHead()
-{
-    return head;
-}
-Node *Linkedlist::findNodeToInsert(int data)
-{
-    Node *minNode = NULL;
-    // int Fmin = tsp[data][head->data] + tsp[tail->data][data] - tsp[tail->data][head->data];
-    int Fmin = INT_MAX;
-    for (Node *pNode = head; pNode->next != NULL; pNode = pNode->next)
-    {
-        int f = tsp[pNode->data][data] + tsp[data][pNode->next->data] - tsp[pNode->data][pNode->next->data];
-        if (f < Fmin)
-        {
-            Fmin = f;
-            minNode = pNode;
-        }
-    }
-    return minNode;
-}
-int Linkedlist::localSearch(int u)
-{
-
-    Node *f = head->next;
-    Node *s = f;
-    loop(i, 1, u)
-    {
-        s = s->next;
-    }
-    Node *prevNode = head;
-
-    while (s != tail)
-    {
-
-        for (Node *pNode = head; pNode != NULL; pNode = pNode->next)
-        {
-            if (pNode == prevNode)
-                pNode = s->next;
-            if (pNode == tail)
-            {
-                int v = tsp[tail->data][f->data] + tsp[s->data][head->data] - tsp[tail->data][head->data] - tsp[prevNode->data][f->data] - tsp[s->data][s->next->data] + tsp[prevNode->data][s->next->data];
-                if (v < 0)
-                {
-                    prevNode->next = s->next;
-                    tail->next = f;
-                    tail = s;
-                    s->next = NULL;
-                    return 1;
-                }
-                break;
-            }
-            int v = tsp[pNode->data][f->data] + tsp[s->data][pNode->next->data] - tsp[pNode->data][pNode->next->data] - tsp[prevNode->data][f->data] - tsp[s->data][s->next->data] + tsp[prevNode->data][s->next->data];
-            if (v < 0)
-            {
-                // cout << f->data << " " << s->data << " " << pNode->data << endl;
-                prevNode->next = s->next;
-                s->next = pNode->next;
-                pNode->next = f;
-                // cout << "change: " << v << endl;
-                return 1;
-            }
-        }
-        f = f->next;
-        s = s->next;
-        prevNode = prevNode->next;
+        items[i].index = i;
+        cin >> items[i].width >> items[i].length;
     }
 
-    f = head;
-    s = f;
-    loop(i, 1, u)
+    vector<Truck> trucks(K);
+    for (int k = 0; k < K; ++k)
     {
-        s = s->next;
+        trucks[k].index = k;
+        cin >> trucks[k].width >> trucks[k].length >> trucks[k].cost;
     }
-    for (Node *pNode = s->next; pNode != tail; pNode = pNode->next)
-    {
-        int v = tsp[tail->data][s->next->data] + tsp[pNode->data][f->data] + tsp[s->data][pNode->next->data] - tsp[tail->data][head->data] - tsp[s->data][s->next->data] - tsp[pNode->data][pNode->next->data];
-        if (v < 0)
-        {
-            head = s->next;
-            s->next = pNode->next;
-            pNode->next = f;
-            return 1;
-        }
-    }
+
+    loadItemsIntoTrucks(N, K, items, trucks);
 
     return 0;
-}
-void printSum(Linkedlist cityList)
-{
-    cout << "Sum: ";
-    Node *pList = cityList.getHead();
-    int sum = 0;
-    while (pList->next != NULL)
-    {
-        sum += tsp[pList->data][pList->next->data];
-        if (sum < 0)
-        {
-            cout << "\n"
-                 << pList->data << " " << pList->next->data << " " << tsp[pList->data][pList->next->data] << endl;
-            cout << sum << endl;
-            // cityList.printList();
-            exit(1);
-        }
-        pList = pList->next;
-    }
-    sum += tsp[pList->data][cityList.getHead()->data];
-    cout << sum << endl;
 }
